@@ -1,6 +1,9 @@
 """
 このファイルは、最初の画面読み込み時にのみ実行される初期化処理が記述されたファイルです。
 """
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 ############################################################
 # ライブラリの読み込み
@@ -20,12 +23,6 @@ from langchain.agents import AgentType, initialize_agent
 import utils
 import constants as ct
 
-# import sys
-# import pysqlite3
-
-# sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
-
-import os
 
 if os.getenv("USE_PYSQLITE3", "false").lower() == "true":
     import sys
