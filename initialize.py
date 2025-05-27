@@ -14,17 +14,23 @@ import streamlit as st
 import tiktoken
 from langchain_openai import ChatOpenAI
 from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
-#from langchain import SerpAPIWrapper
-from langchain_community.utilities import SerpAPIWrapper
+from langchain import SerpAPIWrapper
 from langchain.tools import Tool
 from langchain.agents import AgentType, initialize_agent
 import utils
 import constants as ct
 
-import sys
-import pysqlite3
+# import sys
+# import pysqlite3
 
-sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+# sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+
+import os
+
+if os.getenv("USE_PYSQLITE3", "false").lower() == "true":
+    import sys
+    import pysqlite3
+    sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 
 ############################################################
 # 設定関連
