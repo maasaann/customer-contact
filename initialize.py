@@ -21,6 +21,10 @@ from langchain.agents import AgentType, initialize_agent
 import utils
 import constants as ct
 
+import sys
+import pysqlite3
+
+sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 
 ############################################################
 # 設定関連
