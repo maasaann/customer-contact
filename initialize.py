@@ -24,10 +24,15 @@ import utils
 import constants as ct
 
 
+# sqliteの切替は .env の値を見て分岐
 if os.getenv("USE_PYSQLITE3", "false").lower() == "true":
     import sys
-    import pysqlite3
-    sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+    try:
+        import pysqlite3
+        sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+    except ModuleNotFoundError:
+        raise RuntimeError("USE_PYSQLITE3=true なのに 'pysqlite3' がインストールされていません。")
+
 
 ############################################################
 # 設定関連
