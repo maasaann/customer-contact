@@ -89,9 +89,16 @@ def create_rag_chain(db_name):
 
     # すでに対象のデータベースが作成済みの場合は読み込み、未作成の場合は新規作成する
     if os.path.isdir(db_name):
-        db = Chroma(persist_directory=".db", embedding_function=embeddings)
+        db = Chroma(
+            persist_directory=".db", 
+            embedding_function=embeddings
+            )
     else:
-        db = Chroma.from_documents(splitted_docs, embedding=embeddings, persist_directory=".db")
+        db = Chroma.from_documents(
+            splitted_docs, 
+            embedding=embeddings, 
+            persist_directory=".db"
+            )
 
     retriever = db.as_retriever(search_kwargs={"k": ct.TOP_K})
 
@@ -116,8 +123,14 @@ def create_rag_chain(db_name):
         st.session_state.llm, retriever, question_generator_prompt
     )
 
-    question_answer_chain = create_stuff_documents_chain(st.session_state.llm, question_answer_prompt)
-    rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
+    question_answer_chain = create_stuff_documents_chain(
+        st.session_state.llm, 
+        question_answer_prompt
+        )
+    rag_chain = create_retrieval_chain(
+        history_aware_retriever, 
+        question_answer_chain
+        )
 
     return rag_chain
 
@@ -137,7 +150,9 @@ def add_docs(folder_path, docs_all):
         # 想定していたファイル形式の場合のみ読み込む
         if file_extension in ct.SUPPORTED_EXTENSIONS:
             # ファイルの拡張子に合ったdata loaderを使ってデータ読み込み
-            loader = ct.SUPPORTED_EXTENSIONS[file_extension](f"{folder_path}/{file}")
+            loader = (
+                ct.SUPPORTED_EXTENSIONS[file_extension](f"{folder_path}/{file}")
+                )
         else:
             continue
         docs = loader.load()
@@ -155,9 +170,15 @@ def run_company_doc_chain(param):
         LLMからの回答
     """
     # 会社に関するデータ参照に特化したChainを実行してLLMからの回答取得
-    ai_msg = st.session_state.company_doc_chain.invoke({"input": param, "chat_history": st.session_state.chat_history})
+    ai_msg = st.session_state.company_doc_chain.invoke({
+        "input": param, 
+        "chat_history": st.session_state.chat_history
+        })
     # 会話履歴への追加
-    st.session_state.chat_history.extend([HumanMessage(content=param), AIMessage(content=ai_msg["answer"])])
+    st.session_state.chat_history.extend([
+        HumanMessage(content=param), 
+        AIMessage(content=ai_msg["answer"])
+        ])
 
     return ai_msg["answer"]
 
@@ -172,10 +193,18 @@ def run_service_doc_chain(param):
         LLMからの回答
     """
     # サービスに関するデータ参照に特化したChainを実行してLLMからの回答取得
-    ai_msg = st.session_state.service_doc_chain.invoke({"input": param, "chat_history": st.session_state.chat_history})
+    ai_msg = st.session_state.service_doc_chain.invoke({
+        "input": param, 
+        "chat_history": st.session_state.chat_history
+        })
 
     # 会話履歴への追加
-    st.session_state.chat_history.extend([HumanMessage(content=param), AIMessage(content=ai_msg["answer"])])
+    st.session_state.chat_history.extend(
+        [
+        HumanMessage(content=param), 
+        AIMessage(content=ai_msg["answer"])
+        ]
+        )
 
     return ai_msg["answer"]
 
@@ -190,10 +219,49 @@ def run_customer_doc_chain(param):
         LLMからの回答
     """
     # 顧客とのやり取りに関するデータ参照に特化したChainを実行してLLMからの回答取得
-    ai_msg = st.session_state.customer_doc_chain.invoke({"input": param, "chat_history": st.session_state.chat_history})
+    ai_msg = st.session_state.customer_doc_chain.invoke(
+        {
+        "input": param, 
+        "chat_history": st.session_state.chat_history
+        }
+        )
 
     # 会話履歴への追加
-    st.session_state.chat_history.extend([HumanMessage(content=param), AIMessage(content=ai_msg["answer"])])
+    st.session_state.chat_history.extend(
+        [
+        HumanMessage(content=param), 
+        AIMessage(content=ai_msg["answer"])
+        ]
+        )
+
+    return ai_msg["answer"]
+
+
+def run_tteesstt_doc_chain(param):
+    """
+    TTEESSTTに関するデータ参照に特化したTool設定用の関数
+
+    Args:
+        param: ユーザー入力値
+    
+    Returns:
+        LLMからの回答
+    """
+    # TTEESSTTに関するデータ参照に特化したChainを実行してLLMからの回答取得
+    ai_msg = st.session_state.tteesstt_doc_chain.invoke(
+        {
+        "input": param, 
+        "chat_history": st.session_state.chat_history
+        }
+        )
+
+    # 会話履歴への追加
+    st.session_state.chat_history.extend(
+        [
+        HumanMessage(content=param), 
+        AIMessage(content=ai_msg["answer"])
+        ]
+        )
 
     return ai_msg["answer"]
 
@@ -215,7 +283,9 @@ def delete_old_conversation_log(result):
         # 最も古い会話履歴を削除
         removed_message = st.session_state.chat_history.pop(1)
         # 最も古い会話履歴のトークン数を取得
-        removed_tokens = len(st.session_state.enc.encode(removed_message.content))
+        removed_tokens = len(
+            st.session_state.enc.encode(removed_message.content)
+            )
         # 過去の会話履歴の合計トークン数から、最も古い会話履歴のトークン数を引く
         st.session_state.total_tokens -= removed_tokens
 
@@ -237,14 +307,23 @@ def execute_agent_or_chain(chat_message):
         # LLMによる回答をストリーミング出力するためのオブジェクトを用意
         st_callback = StreamlitCallbackHandler(st.container())
         # Agent Executorの実行（AIエージェント機能を使う場合は、Toolとして設定した関数内で会話履歴への追加処理を実施）
-        result = st.session_state.agent_executor.invoke({"input": chat_message}, {"callbacks": [st_callback]})
+        result = st.session_state.agent_executor.invoke(
+            {"input": chat_message}, 
+            {"callbacks": [st_callback]}
+            )
         response = result["output"]
     # AIエージェントを利用しない場合
     else:
         # RAGのChainを実行
-        result = st.session_state.rag_chain.invoke({"input": chat_message, "chat_history": st.session_state.chat_history})
+        result = st.session_state.rag_chain.invoke({
+            "input": chat_message, 
+            "chat_history": st.session_state.chat_history
+            })
         # 会話履歴への追加
-        st.session_state.chat_history.extend([HumanMessage(content=chat_message), AIMessage(content=result["answer"])])
+        st.session_state.chat_history.extend([
+            HumanMessage(content=chat_message), 
+            AIMessage(content=result["answer"])
+            ])
         response = result["answer"]
 
     # LLMから参照先のデータを基にした回答が行われた場合のみ、フィードバックボタンを表示

@@ -33,7 +33,10 @@ try:
     initialize()
 except Exception as e:
     logger.error(f"{ct.INITIALIZE_ERROR_MESSAGE}\n{e}")
-    st.error(utils.build_error_message(ct.INITIALIZE_ERROR_MESSAGE), icon=ct.ERROR_ICON)
+    st.error(utils.build_error_message(
+        ct.INITIALIZE_ERROR_MESSAGE), 
+        icon=ct.ERROR_ICON
+        )
     st.stop()
 
 # アプリ起動時のログ出力
@@ -75,7 +78,10 @@ try:
     cn.display_conversation_log(chat_message)
 except Exception as e:
     logger.error(f"{ct.CONVERSATION_LOG_ERROR_MESSAGE}\n{e}")
-    st.error(utils.build_error_message(ct.CONVERSATION_LOG_ERROR_MESSAGE), icon=ct.ERROR_ICON)
+    st.error(utils.build_error_message(
+        ct.CONVERSATION_LOG_ERROR_MESSAGE), 
+        icon=ct.ERROR_ICON
+        )
     st.stop()
 
 
@@ -114,7 +120,10 @@ if chat_message:
             result = utils.execute_agent_or_chain(chat_message)
     except Exception as e:
         logger.error(f"{ct.GET_LLM_RESPONSE_ERROR_MESSAGE}\n{e}")
-        st.error(utils.build_error_message(ct.GET_LLM_RESPONSE_ERROR_MESSAGE), icon=ct.ERROR_ICON)
+        st.error(utils.build_error_message(
+            ct.GET_LLM_RESPONSE_ERROR_MESSAGE), 
+            icon=ct.ERROR_ICON
+            )
         st.stop()
     
     # ==========================================
@@ -132,14 +141,23 @@ if chat_message:
             logger.info({"message": result})
         except Exception as e:
             logger.error(f"{ct.DISP_ANSWER_ERROR_MESSAGE}\n{e}")
-            st.error(utils.build_error_message(ct.DISP_ANSWER_ERROR_MESSAGE), icon=ct.ERROR_ICON)
+            st.error(utils.build_error_message(
+                ct.DISP_ANSWER_ERROR_MESSAGE), 
+                icon=ct.ERROR_ICON
+                )
             st.stop()
     
     # ==========================================
     # 5. 会話ログへの追加
     # ==========================================
-    st.session_state.messages.append({"role": "user", "content": chat_message})
-    st.session_state.messages.append({"role": "assistant", "content": result})
+    st.session_state.messages.append({
+        "role": "user", 
+        "content": chat_message
+        })
+    st.session_state.messages.append({
+        "role": "assistant", 
+        "content": result
+        })
 
 
 ############################################################

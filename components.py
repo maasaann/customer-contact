@@ -49,7 +49,10 @@ def display_initial_ai_message():
     """
     with st.chat_message("assistant", avatar=ct.AI_ICON_FILE_PATH):
         st.success("こちらは弊社に関する質問にお答えする生成AIチャットボットです。AIエージェントの利用有無を選択し、画面下部のチャット欄から質問してください。")
-        st.warning("具体的に入力したほうが期待通りの回答を得やすいです。", icon=ct.WARNING_ICON)
+        st.warning(
+            "具体的に入力したほうが期待通りの回答を得やすいです。", 
+            icon=ct.WARNING_ICON
+            )
 
 
 def display_conversation_log(chat_message):
@@ -92,12 +95,16 @@ def display_after_feedback_message(index, chat_message):
         # フィードバックで「いいえ」が選択されたら、入力エリアを表示する
         if st.session_state.feedback_no_flg:
             st.caption(ct.FEEDBACK_NO_MESSAGE)
-            st.session_state.dissatisfied_reason = st.text_area("", label_visibility="collapsed")
+            st.session_state.dissatisfied_reason = (
+                st.text_area("", label_visibility="collapsed")
+            )
             # 送信ボタンの表示
             if st.button(ct.FEEDBACK_BUTTON_LABEL):
                 # 回答への不満足理由をログファイルに出力
                 if st.session_state.dissatisfied_reason:
-                    logger.info({"dissatisfied_reason": st.session_state.dissatisfied_reason})
+                    logger.info({
+                        "dissatisfied_reason": st.session_state.dissatisfied_reason
+                        })
                 # 送信ボタン押下後、再度入力エリアが表示されないようにするのと、Thanksメッセージを表示するためにフラグを更新
                 st.session_state.feedback_no_flg = False
                 st.session_state.feedback_no_reason_send_flg = True
